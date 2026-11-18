@@ -52,7 +52,7 @@
             align-items: center; position: sticky; top: 0; z-index: 100;
         }
         .logo { font-size: 1.4rem; font-weight: 900; color: var(--primary); }
-        .logo span { color: var(--secondary); display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-gray); }
+        .logo span { color: var(--text-gray); display: block; font-size: 0.85rem; font-weight: 600; }
         
         .support-nav { display: flex; gap: 0.6rem; align-items: center; position: relative; }
         .dropdown { position: relative; display: inline-block; }
@@ -136,7 +136,7 @@
 </head>
 <body>
 
-    <!-- شاشة تسجيل البيانات والأكواد -->
+    <!-- شاشة تسجيل البيانات والأكواد (ظاهرة وثابتة افتراضياً) -->
     <div id="loginScreen">
         <div class="login-box">
             <h2>أكاديمية طيور الجنة</h2>
@@ -221,7 +221,6 @@
             "TMT-6666", "TMT-7777", "TMT-8888", "TMT-9999", "TMT-1234"
         ];
 
-        // رقم الواتساب الخاص بك (مستقبل الإشعارات)
         const myWhatsAppNumber = "201055830836";
 
         function verifyCode() {
@@ -243,10 +242,12 @@
                 return;
             }
 
-            // التأكد من حماية الجهاز الواحد
             const usedCodes = JSON.parse(localStorage.getItem('used_codes') || "{}");
-            const myDevice = localStorage.getItem('my_device_id') || ('dev_' + Math.random().toString(36).substring(2, 11));
-            localStorage.setItem('my_device_id', myDevice);
+            let myDevice = localStorage.getItem('my_device_id');
+            if(!myDevice) {
+                myDevice = 'dev_' + Math.random().toString(36).substring(2, 11);
+                localStorage.setItem('my_device_id', myDevice);
+            }
 
             if(usedCodes[code] && usedCodes[code] !== myDevice) {
                 errorDiv.innerText = "عذراً، هذا الكود مستخدم بالفعل على جهاز آخر!";
@@ -254,26 +255,25 @@
                 return;
             }
 
-            // حفظ استخدام الكود
             usedCodes[code] = myDevice;
             localStorage.setItem('used_codes', JSON.stringify(usedCodes));
             localStorage.setItem('student_logged', 'true');
 
-            // فتح واتساب أوتوماتيك لإرسال تفاصيل تسجيل الطالب لك
             const message = `✨ طالب جديد سجل في المنصة!\n\n👤 الاسم: ${name}\n📱 الهاتف: ${phone}\n📚 القسم: ${grade}\n🔑 الكود المستخدم: ${code}`;
             const whatsappUrl = `https://wa.me/${myWhatsAppNumber}?text=${encodeURIComponent(message)}`;
             
-            // فتح واتساب في نافذة خفية أو تبويب جديد عشان يبلغك
             window.open(whatsappUrl, '_blank');
 
-            // إخفاء شاشة تسجيل الدخول وفتح المنصة
+            // إخفاء شاشة تسجيل الدخول بعد النجاح
             document.getElementById('loginScreen').style.display = 'none';
         }
 
+        // تم ضبط هذه الدالة بحيث لا تقفل شاشة الدخول أوتوماتيكياً وتتسبب في أي اختفاء مفاجئ
         window.onload = function() {
-            if(localStorage.getItem('student_logged') === 'true') {
-                document.getElementById('loginScreen').style.display = 'none';
-            }
+            // شاشة تسجيل الدخول هتفضل ثابتة وواضحة دايماً لأي زيارة جديدة، 
+            // ولو حابب تتخطى الدخول مؤقتاً للتجربة تقدر تلغي التعليق عن السطر التالي:
+            // if(localStorage.getItem('student_logged') === 'true') { document.getElementById('loginScreen').style.display = 'none'; }
+            
             renderCourses('all');
         }
 
