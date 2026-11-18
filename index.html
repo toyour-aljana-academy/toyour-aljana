@@ -63,7 +63,7 @@
         }
         .dropdown-content {
             display: none; position: absolute; left: 0; background-color: #ffffff;
-            min-width: 180px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1); border-radius: 12px;
+            min-width: 190px; box-shadow: 0px 8px 16px rgba(0,0,0,0.1); border-radius: 12px;
             z-index: 1; overflow: hidden; margin-top: 5px; border: 1px solid #e2e8f0;
         }
         .dropdown-content a {
@@ -182,6 +182,8 @@
                 <div class="dropdown-content">
                     <a href="tel:01281757363">📞 اتصال هاتفي</a>
                     <a href="https://wa.me/201055830836?text=السلام%20عليكم،%20عايز%20أستفسر%20عن%20الكورسات" target="_blank">💬 مراسلة واتساب</a>
+                    <!-- زرار الشكاوي والاقتراحات الجديد لأولياء الأمور -->
+                    <a href="https://wa.me/201055830836?text=السلام%20عليكم،%20عندي%20شكوى%20أو%20اقتراحات%20بخصوص%20المنصة:" target="_blank" style="color: #ef4444; border-top: 1px solid #f1f5f9;">⚠️ شكاوى واقتراحات</a>
                 </div>
             </div>
         </div>
@@ -215,7 +217,7 @@
     <footer><p>جميع الحقوق محفوظة &copy; 2026 - أكاديمية طيور الجنة</p></footer>
 
     <script>
-        // الأكواد الحقيقية الخاصة بك وحدك (يمكنك تعديلها أو إضافتها في أي وقت)
+        // الأكواد الحقيقية الخاصة بك وحدك
         const VALID_CODES = [
             "TMT-2026", 
             "TMT-9999", 
@@ -225,6 +227,17 @@
 
         const myWhatsAppNumber = "201055830836";
 
+        // وظيفة نطق الصوت الترحيبي تلقائياً
+        function playWelcomeVoice(studentName) {
+            if ('speechSynthesis' in window) {
+                const textToSpeak = `أهلاً بك يا بطل ${studentName} في أكاديمية طيور الجنة. نتمنى لك رحلة تعليمية ممتعة.`;
+                const utterance = new SpeechSynthesisUtterance(textToSpeak);
+                utterance.lang = 'ar-SA'; // لغة عربية واضحة
+                utterance.rate = 0.95; // سرعة هادئة ومناسبه
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         function verifyCode() {
             const name = document.getElementById('studentName').value.trim();
             const phone = document.getElementById('studentPhone').value.trim();
@@ -232,7 +245,6 @@
             const code = document.getElementById('accessCodeInput').value.trim().toUpperCase();
             const errorDiv = document.getElementById('errorMsg');
             
-            // شروط صارمة جداً: ممنوع الدخول لو خانة فاضية
             if(!name || !phone || !code) {
                 errorDiv.innerText = "⚠️ خطأ: يجب ملء جميع الخانات (الاسم، الهاتف، وكود الاشتراك) تماماً!";
                 errorDiv.style.display = "block";
@@ -245,14 +257,12 @@
                 return;
             }
 
-            // فحص قاطع: لو الكود مش موجود في القائمة المعتمدة يترفض تماماً
             if(!VALID_CODES.includes(code)) {
                 errorDiv.innerText = "❌ كود الاشتراك خطأ أو غير مسموح به! تواصل معنا للحصول على كود صحيح.";
                 errorDiv.style.display = "block";
                 return;
             }
 
-            // نظام حماية الجهاز الواحد (Device Lock)
             const usedCodes = JSON.parse(localStorage.getItem('used_codes') || "{}");
             let myDevice = localStorage.getItem('my_device_id');
             if(!myDevice) {
@@ -266,10 +276,13 @@
                 return;
             }
 
-            // تخزين حالة الدخول بنجاح
             usedCodes[code] = myDevice;
             localStorage.setItem('used_codes', JSON.stringify(usedCodes));
             localStorage.setItem('student_logged', 'true');
+            localStorage.setItem('student_name', name);
+
+            // نطق الترحيب بصوت ناطق آلي باسم الطالب
+            playWelcomeVoice(name);
 
             // إرسال إشعار على الواتساب للمالك أوتوماتيك
             const message = `✨ طالب جديد سجل في المنصة!\n\n👤 الاسم: ${name}\n📱 الهاتف: ${phone}\n📚 القسم: ${grade}\n🔑 الكود المستخدم: ${code}`;
@@ -282,7 +295,6 @@
         }
 
         window.onload = function() {
-            // لو الطالب مسجل دخول قبل كده على نفس الجهاز يفتح علطول، لو لأ تفضل الشاشة ظاهرة وصارمة
             if(localStorage.getItem('student_logged') === 'true') {
                 document.getElementById('loginScreen').style.display = 'none';
             }
@@ -343,7 +355,7 @@
         window.onclick = function(event) {
             if (!event.target.matches('.btn-support')) {
                 var dropdowns = document.getElementsByClassName("dropdown");
-                for (var i = 0; i < dropdowns.length; i++) {
+                for (var i =0; i < dropdowns.length; i++) {
                     var openDropdown = dropdowns[i];
                     if (openDropdown.classList.contains('active')) {
                         openDropdown.classList.remove('active');
